@@ -1,0 +1,127 @@
+>>> info
+This page was written with help from AI.
+<<<
+
+Adds Create's palette-styled item tooltips (the ones shown when holding **Shift** or **Ctrl**) to **any item** with a single startup script. No Java code and no separate lang files needed.
+
+## Dependencies
+- KubeJS - [Modrinth](https://modrinth.com/mod/kubejs) | [Curseforge](https://www.curseforge.com/minecraft/mc-mods/kubejs)
+- Create - [Modrinth](https://modrinth.com/mod/create) | [Curseforge](https://www.curseforge.com/minecraft/mc-mods/create)
+
+>>> info
+This addon is available for Minecraft 1.21.1 (NeoForge) and requires Create 6.0.7 or newer.
+<<<
+
+# Getting Started
+In {st-s}:
+```js
+CreateTooltipEvents.register(event => {
+	event.add('minecraft:stick', 'STANDARD_CREATE', {
+		tooltip: '',
+		summary: 'A simple _wooden_ stick. Very sticky.'
+	})
+})
+```
+Launch the game and hover over a stick while holding **Shift** to see the tooltip.
+
+>>> info
+This is a startup event, so changes to the script require a game restart.
+<<<
+
+# Methods
+| Method | Description |
+| `[js]event.add(item, palette, text)` | Registers a tooltip for the item. The lang keys are based on the item's translation key. |
+| `[js]event.addWithKey(item, palette, langKey, text)` | Same as `[js]add`, but uses a custom lang key base instead of the item's translation key. |
+| `[js]event.add(item, palette)` | Registers the tooltip without any text. The text has to come from your own lang entries (see Lang Keys and Translations below). |
+| `[js]event.addWithKey(item, palette, langKey)` | Same as above, but with a custom lang key base. |
+
+# Palettes
+The `palette` parameter controls the color scheme of the tooltip. Palette names are case-insensitive.
+- `STANDARD_CREATE`
+- `BLUE`
+- `GREEN`
+- `YELLOW`
+- `RED`
+- `PURPLE`
+- `GRAY`
+- `ALL_GRAY`
+- `GRAY_AND_BLUE`
+- `GRAY_AND_WHITE`
+- `GRAY_AND_GOLD`
+- `GRAY_AND_RED`
+
+# Text Object
+The `text` parameter is an object with the following fields. All fields are optional, but `summary` is required for the tooltip to show.
+
+| Field | Shown when | Description |
+| `tooltip` | - | Lets Create detect the tooltip. The value is not displayed. |
+| `summary` | Holding Shift | Main description text. |
+| `condition1`, `condition2`, ... | Holding Shift | Condition labels, rendered in gray. |
+| `behaviour1`, `behaviour2`, ... | Holding Shift | Text shown under the condition with the same number. |
+| `control1`, `control2`, ... | Holding Ctrl | Control labels, rendered in gray. |
+| `action1`, `action2`, ... | Holding Ctrl | Text shown under the control with the same number. |
+
+Conditions/behaviours and controls/actions are numbered starting from 1. Numbers must not have gaps: everything after a missing number is ignored.
+
+## Highlight Formatting
+Wrap words in underscores to switch between the palette's primary and highlight color, for example `_Burns_ for 100 ticks`. Here "Burns" is shown in the highlight color and "for 100 ticks" in the primary color.
+
+## Full Example
+```js
+CreateTooltipEvents.register(event => {
+	event.add('minecraft:stick', 'STANDARD_CREATE', {
+		tooltip: '',
+		summary: 'A simple wooden stick with _many_ uses.',
+		condition1: 'When used as fuel',
+		behaviour1: '_Burns_ for 100 ticks',
+		condition2: 'When crafted with flint',
+		behaviour2: 'Creates _arrows_',
+		control1: 'Right Click',
+		action1: '_Poke_ things with it'
+	})
+})
+```
+
+# Lang Keys and Translations
+The tooltip text is stored in lang keys based on the item's translation key. For `minecraft:stick` (translation key `item.minecraft.stick`) these are:
+- `item.minecraft.stick.tooltip`
+- `item.minecraft.stick.tooltip.summary`
+- `item.minecraft.stick.tooltip.condition1`, `item.minecraft.stick.tooltip.behaviour1`, ...
+- `item.minecraft.stick.tooltip.control1`, `item.minecraft.stick.tooltip.action1`, ...
+
+With `[js]addWithKey`, the lang key base you pass is used instead of the item's translation key. For example, `[js]event.addWithKey('minecraft:paper', 'BLUE', 'item.mypack.paper', text)` stores the summary in `item.mypack.paper.tooltip.summary`.
+
+Text from the text object is added as English (`en_us`) lang entries. Other languages fall back to English, so the tooltip shows up everywhere, but always in English. To translate a tooltip, register it without text and add the lang entries yourself with [[/events/ClientEvents/lang]]:
+
+In {st-s}:
+```js
+CreateTooltipEvents.register(event => {
+	event.add('minecraft:stick', 'GRAY_AND_BLUE')
+})
+```
+
+In {cl-s}:
+```js
+ClientEvents.lang('en_us', event => {
+	event.add('item.minecraft.stick.tooltip', '')
+	event.add('item.minecraft.stick.tooltip.summary', 'A simple _wooden_ stick.')
+})
+
+ClientEvents.lang('de_de', event => {
+	event.add('item.minecraft.stick.tooltip', '')
+	event.add('item.minecraft.stick.tooltip.summary', 'Ein einfacher _hölzerner_ Stock.')
+})
+```
+
+# Notes
+>>> warning
+If an item already has a Create tooltip (for example Create's own items), the registration is skipped and a warning is written to the log.
+<<<
+
+>>> danger
+An unknown item ID or palette name causes an error in the startup log. If a tooltip doesn't show up, check the startup log first.
+<<<
+
+>>> info
+Tooltips only exist on the client. On a dedicated server the event does nothing, so the same startup script is safe to keep on servers.
+<<<
