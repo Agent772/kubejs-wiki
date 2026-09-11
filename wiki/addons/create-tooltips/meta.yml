@@ -1,0 +1,4 @@
+script: "startup"
+addon: "third-party"
+download-curseforge: "kubejs-create-tooltips"
+author: "0EBD84E5"
