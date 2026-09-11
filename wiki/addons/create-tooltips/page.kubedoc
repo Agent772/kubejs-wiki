@@ -1,3 +1,7 @@
+>>> info
+This page was written with help from AI.
+<<<
+
 Adds Create's palette-styled item tooltips (the ones shown when holding **Shift** or **Ctrl**) to **any item** with a single startup script. No Java code and no separate lang files needed.
 
 ## Dependencies
